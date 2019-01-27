@@ -5,14 +5,8 @@ using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
 using System.Text;
-using Newtonsoft.Json.Linq;
-using System.Threading.Tasks;
 using System.Data;
-using System.Xml;
-using System.Data.SqlClient;
-using System.Net.Mail;
 using System.Net;
-using System.Text.RegularExpressions;
 
 namespace ConsoleApp
 {
@@ -33,7 +27,7 @@ namespace ConsoleApp
         }
     }
 
-    
+
 
 
     class Program
@@ -55,13 +49,13 @@ namespace ConsoleApp
 
             // Read response asynchronously as stream            
             var bush = await response.Content.ReadAsStreamAsync();
-            
+
             //Serialize data to json format
             using (var streamReader = new StreamReader(bush))
             {
                 //set response content to string value
                 string str = streamReader.ReadToEnd();
-                
+
                 //Convert data to Json
                 var gh = JsonConvert.DeserializeObject<Container.RootObject>(str);
 
@@ -107,15 +101,31 @@ namespace ConsoleApp
 
                     if (!File.Exists(path))
                     {
-
+                        //write file to disk (admin)
                         File.WriteAllText(path, sb);
+                        //send file to ftp
+                        //open connection and type
+                        FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://passwordes123456@ftp.drivehq.com/wwwhome");
+                        request.Method = WebRequestMethods.Ftp.UploadFile;
+                        //read and convert file into bytes
 
-                        WebClient wc = new WebClient();
-                        Uri uri = new Uri("");
+                        StreamReader sft = new StreamReader(path);
+                        byte[] fileContents = Encoding.UTF8.GetBytes(sft.ReadToEnd());
+                        sft.Close();
+                        //ContentLength gets or sets values that are unreadable by ftp class 
+                        request.ContentLength = fileContents.Length;
+                        
+                        request.Credentials = new NetworkCredential("passwordes123456", "abc123456789abc");
 
-                        wc.UploadFileAsync(uri, path);
 
-                        FtpWebRequest ftp = new FtpWebRequest("");
+                        Stream requestStream = request.GetRequestStream();
+                        requestStream.Write(fileContents, 0, fileContents.Length);
+                        requestStream.Close();
+
+                        using (FtpWebResponse rsp = (FtpWebResponse)request.GetResponse())
+                        {
+                            Console.WriteLine($"Complete, status {rsp.StatusDescription}");
+                        }
 
 
                     }
