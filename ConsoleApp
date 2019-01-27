@@ -73,7 +73,7 @@ namespace ConsoleApp
                     sb += ls[i] + " | ";
                 }
 
-                DirectoryInfo dirCreate = new DirectoryInfo(@"C:\Users\Rafte\Desktop\GMER\Access_Log");
+                DirectoryInfo dirCreate = new DirectoryInfo(@"C:\Users\joe_bloggs\Desktop\GMER\Access_Log");
                 try
                 {
                     char[] vv = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
