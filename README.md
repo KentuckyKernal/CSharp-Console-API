@@ -1,2 +1,2 @@
-# Console-API
-Simple Console API - collect information and save it in a new document
+# Console-API's
+Collection of API's using range of C# namespaces 
