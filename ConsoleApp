@@ -48,10 +48,10 @@ namespace ConsoleApp
             response.EnsureSuccessStatusCode();
 
             // Read response asynchronously as stream            
-            var bush = await response.Content.ReadAsStreamAsync();
+            var _content = await response.Content.ReadAsStreamAsync();
 
             //Serialize data to json format
-            using (var streamReader = new StreamReader(bush))
+            using (var streamReader = new StreamReader(_content))
             {
                 //set response content to string value
                 string str = streamReader.ReadToEnd();
@@ -73,7 +73,7 @@ namespace ConsoleApp
                     sb += ls[i] + " | ";
                 }
 
-                DirectoryInfo dirCreate = new DirectoryInfo(@"C:\Users\joe_bloggs\Desktop\GMER\Access_Log");
+                DirectoryInfo dirCreate = new DirectoryInfo(@"C:\Users\joe_bloggs\Desktop\Folder\Access_Log");
                 try
                 {
                     char[] vv = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
@@ -105,7 +105,7 @@ namespace ConsoleApp
                         File.WriteAllText(path, sb);
                         //send file to ftp
                         //open connection and type
-                        FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://passwordes123456@ftp.drivehq.com/wwwhome");
+                        FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://something@ftp.someweb.com/wwwhome");
                         request.Method = WebRequestMethods.Ftp.UploadFile;
                         //read and convert file into bytes
 
@@ -115,7 +115,7 @@ namespace ConsoleApp
                         //ContentLength gets or sets values that are unreadable by ftp class 
                         request.ContentLength = fileContents.Length;
                         
-                        request.Credentials = new NetworkCredential("passwordes123456", "abc123456789abc");
+                        request.Credentials = new NetworkCredential("user123456", "passWord");
 
 
                         Stream requestStream = request.GetRequestStream();
