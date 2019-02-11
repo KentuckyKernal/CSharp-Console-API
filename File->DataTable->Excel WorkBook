@@ -1,0 +1,145 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Data;
+using System.IO;
+using ClosedXML.Excel;
+
+namespace ConsoleApplication39
+{
+
+    //Directory navigation
+    //File selection 
+    //Open up into dataSet 
+    //Send to another folder 
+    //Delete from existing folder
+
+    public class Program
+    {
+        public static void Main(string[] args)
+        {
+            Data._Data(Begin._Df());
+            Console.WriteLine("Done");
+            Console.ReadLine();
+        }
+    }
+
+    class Begin
+    {
+        public static string _Df()
+        {
+            string Directory = Console.ReadLine();
+
+            DirectoryInfo df = new DirectoryInfo(@"" + Directory + "");
+            {
+                //Colection of files within Directory
+
+                var enumfiles = df.EnumerateFiles();
+                var Date = new List<string>();
+                var Date2 = new List<int>();
+
+                Dictionary<string, int> di = new Dictionary<string, int>();
+
+                foreach (var item in enumfiles)
+                {
+                    di.Add(item.FullName + " " + item.CreationTime.ToShortDateString(), Convert.ToInt32(((Convert.ToString(item.CreationTime).Remove(0, 11)).Remove(2, 1)).Remove(4, 1)));
+                    Date.Add(item.CreationTime.ToShortDateString());
+                    Date2.Add(item.CreationTime.Year + item.CreationTime.Month + item.CreationTime.Day);
+                }
+
+                Dictionary<string, int> di2 = new Dictionary<string, int>();
+                string recentDate = Date.ElementAt(Date2.IndexOf(Date2.Max()));
+
+                foreach (var item in di)
+                {
+                    if (item.Key.Contains(recentDate))
+                    {
+                        di2.Add(item.Key, item.Value);
+                    }
+                }
+
+                string res = "";
+
+                foreach (var item in di2)
+                {
+                    if (item.Value == di2.Values.Max())
+                    {
+                        res = item.Key;
+                        Console.WriteLine(res);
+                    }
+                }
+                return res;
+            }
+        }
+    }
+
+    class Data
+    {
+
+
+        public static void _Data(string res)
+        {
+            //C: \Users\Rafte\Desktop\GMER\Access_Log
+            string res2 = res.Substring(0, res.IndexOf(" "));
+
+            //Data Processing
+            using (StreamReader sr = File.OpenText(@"" + res2 + ""))
+            {
+                string rtoe = sr.ReadToEnd();
+                char[] splitter = { '|' };
+                string[] uu = rtoe.Split(splitter);
+                char[] split2 = { ',' };
+                string[,] huuu = new string[,] { };
+                List<string[]> jojo = new List<string[]>();
+
+                DataTable dt = new DataTable();
+                DataSet ds = new DataSet();
+
+                string hulo = rtoe.Substring(0, rtoe.IndexOf('|'));
+                int count = 0;
+
+                for (var i = 0; i < hulo.Length; i++)
+                {
+                    if (rtoe[i] == ',')
+                    {
+                        count++;
+                    }
+                }
+
+                for (var i = 0; i < uu.Length; i++)
+                {
+                    jojo.Add(uu[i].Split(split2));
+                }
+
+                for (var i = 0; i < 4; i++)
+                {
+                    DataColumn col = new DataColumn();
+                    col.ColumnName = "Column" + i;
+                    col.DataType = System.Type.GetType("System.String");
+                    dt.Columns.Add(col);
+                }
+
+                for (var j = 0; j < jojo.Count(); j++)
+                {
+                    dt.Rows.Add(jojo[j]);
+                }
+
+                dt.AcceptChanges();
+
+                int ss_index = res.LastIndexOf(@"\");
+                int ss2_index = res.LastIndexOf(@" ");
+                string fileName = res.Substring(ss_index + 1, ss2_index - ss_index);
+
+
+                using (XLWorkbook wb = new XLWorkbook())
+                {
+                    wb.Worksheets.Add(dt, "Worksheet");
+                    wb.SaveAs(@"C: \Users\Rafte\Desktop\" + fileName + ".xlsx");
+
+                }
+            }
+
+        }
+    }
+}
+    
