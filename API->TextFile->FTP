@@ -1,0 +1,153 @@
+
+using System;
+using System.Net.Http;
+using System.Linq;
+using System.Collections.Generic;
+using System.IO;
+using Newtonsoft.Json;
+using System.Text;
+using System.Data;
+using System.Net;
+
+namespace ConsoleApp
+{
+
+    public class Container
+    {
+        public class People
+        {
+            public string name { get; set; }
+            public string craft { get; set; }
+        }
+
+        public class RootObject
+        {
+            public List<People> People { get; set; }
+            public int number { get; set; }
+            public string message { get; set; }
+        }
+    }
+
+
+
+
+    class Program
+    {
+
+        private static string _address = "http://api.open-notify.org/astros.json";
+
+        private static async void RunClient()
+        {
+            // Create an HttpClient instance
+            HttpClient client = new HttpClient();
+
+            // Send a request asynchronously and continue when complete
+            HttpResponseMessage response = await client.GetAsync(_address);
+
+            // Check that response was successful or throw exception
+
+            response.EnsureSuccessStatusCode();
+
+            // Read response asynchronously as stream            
+            var _content = await response.Content.ReadAsStreamAsync();
+
+            //Serialize data to json format
+            using (var streamReader = new StreamReader(_content))
+            {
+                //set response content to string value
+                string str = streamReader.ReadToEnd();
+
+                //Convert data to Json
+                var gh = JsonConvert.DeserializeObject<Container.RootObject>(str);
+
+                var ls = new List<string>();
+                string sb = "";
+
+                foreach (Container.People item in gh.People)
+                {
+                    ls.Add("Name: " + item.name + " Craft: " + item.craft + " Message: " + gh.message + " Number: " + gh.number);
+                    //Console.WriteLine(item.craft + item.name + gh.message + gh.number);
+                }
+
+                for (var i = 0; i < ls.Count(); i++)
+                {
+                    sb += ls[i] + " | ";
+                }
+
+                DirectoryInfo dirCreate = new DirectoryInfo(@"C:\Users\joe_bloggs\Desktop\Folder\Access_Log");
+                try
+                {
+                    char[] vv = { '1', '2', '3', '4', '5', '6', '7', '8', '9', '0' };
+                    string ff = "";
+
+                    string ld = dirCreate.EnumerateFiles()
+                                .OrderByDescending(x => x.CreationTime)
+                                .First()
+                                .Name
+                                .ToString();
+
+                    for (var i = 0; i < ld.Length; i++)
+                    {
+                        for (var j = 0; j < vv.Length; j++)
+                        {
+                            if (ld.ElementAt(i) == vv.ElementAt(j))
+                            {
+                                ff += ld[i];
+                            }
+                        }
+                    }
+
+                    string yy = Convert.ToString(Convert.ToInt16(ff) + 1);
+                    string path = @"C:\Users\Rafte\Desktop\GMER\Access_Log\ND_" + yy;
+
+                    if (!File.Exists(path))
+                    {
+                        //write file to disk (admin)
+                        File.WriteAllText(path, sb);
+                        //send file to ftp
+                        //open connection and type
+                        FtpWebRequest request = (FtpWebRequest)WebRequest.Create("ftp://something@ftp.someweb.com/wwwhome");
+                        request.Method = WebRequestMethods.Ftp.UploadFile;
+                        //read and convert file into bytes
+
+                        StreamReader sft = new StreamReader(path);
+                        byte[] fileContents = Encoding.UTF8.GetBytes(sft.ReadToEnd());
+                        sft.Close();
+                        //ContentLength gets or sets values that are unreadable by ftp class 
+                        request.ContentLength = fileContents.Length;
+                        
+                        request.Credentials = new NetworkCredential("user123456", "passWord");
+
+
+                        Stream requestStream = request.GetRequestStream();
+                        requestStream.Write(fileContents, 0, fileContents.Length);
+                        requestStream.Close();
+
+                        using (FtpWebResponse rsp = (FtpWebResponse)request.GetResponse())
+                        {
+                            Console.WriteLine($"Complete, status {rsp.StatusDescription}");
+                        }
+
+
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unable to write to disk..");
+                    }
+
+                }
+                finally
+                {
+                    Console.WriteLine("Done");
+                }
+
+            }
+        }
+
+        static void Main(string[] args)
+        {
+            RunClient();
+            Console.ReadLine();
+        }
+    }
+}
